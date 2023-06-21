@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="SAP Concur App Landing Page Example" />
+    <meta name="author" content="Henry Gu" />
+
+    <title>Landing Page Example</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat|Ubuntu" rel="stylesheet" />
+
+    <!-- Font Awesome -->
+    <script defer src="https://use.fontawesome.com/releases/v5.0.7/js/all.js"></script>
+
+    <!-- Bootstrap Scripts -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+      integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn"
+      crossorigin="anonymous"
+    />
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <!-- Embedded style sheet -->
+    <style>
+      body {
+        font-family: "Montserrat";
+        text-align: center;
+      }
+
+      p {
+        color: #8f8f8f;
+      }
+
+      /* Title Section */
+
+      #title {
+        background-color: #f88020;
+        color: #fff;
+        text-align: center;
+      }
+
+      .container-fluid {
+        padding: 0 80px;
+      }
+
+      /* Navigation Bar */
+
+      .navbar-brand {
+        font-family: "Ubuntu";
+        font-size: 2.5rem;
+        font-weight: bold;
+        padding: 10px 0 0 60px;
+      }
+
+      .nav-item {
+        padding: 0 18px;
+      }
+
+      .nav-link {
+        font-size: 0.9rem;
+        font-family: "Ubuntu";
+      }
+
+      /* Main Section */
+
+      #main {
+        background-color: white;
+        color: black;
+        text-align: center;
+      }
+
+      .container {
+        text-align: center;
+        padding-top: 2rem;
+        max-width: 800px;
+      }
+
+      .card-header {
+        font-size: 1.5rem;
+      }
+
+      .card-subtitle {
+        text-align: left;
+        padding: 20px 4% 0;
+      }
+      .card-text {
+        text-align: left;
+        padding: 10px 4% 0;
+      }
+
+      .option-select {
+        text-align: left;
+      }
+
+      /* Footer Section */
+      #footer {
+        padding-top: 50px;
+      }
+      .footer-link {
+        padding: 0 15px;
+      }
+      .copyright {
+        padding-top: 20px;
+      }
+      @media (max-width: 1028px) {
+        #title {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <section class="title-section" id="title">
+      <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-dark">
+          <img class="company-logo" src="https://via.placeholder.com/100x100.png?text=LOGO" alt="logo" width="80" height="80" />
+          <p class="navbar-brand" href="">Partner Company</p>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarToggler">
+            <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                <a class="nav-link" href="">About</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="">Contact</a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+    </section>
+
+    <section class="middle-section" id="main">
+      <div class="container">
+        <div class="card">
+          <div class="card-header">Connect Your SAP Concur Account with Partner App Name</div>
+          <div class="card-subtitle">Connection Description And Credential Inputs</div>
+          <div class="card-text">
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
+              exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            </p>
+          </div>
+          <div class="card-body">
+            <form action="/auth" method="post">
+              <div class="form-group row">
+                <label class="col-md-4 col-form-label text-md-right">Account / ID</label>
+                <div class="col-md-6">
+                  <input type="text" id="account-id" class="form-control" name="account-id" placeholder="your account id number..." required autofocus />
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <label for="password" class="col-md-4 col-form-label text-md-right">Verificaiton Code</label>
+                <div class="col-md-6">
+                  <input type="password" id="auth-code" class="form-control" name="auth-code" placeholder="xxxx-xxxx-xxxx-xxxx" required />
+                </div>
+              </div>
+              <div class="card-subtitle">Optional Information and Inputs</div>
+              <div class="card-text">
+                <p>Nisl pretium fusce id velit ut tortor. Enim tortor at auctor urna nunc id cursus metus.</p>
+              </div>
+              <div class="form-group row">
+                <label class="col-md-4 col-form-label text-md-right">Choose an option</label>
+                <div class="col-md-6">
+                  <select class="option-select form-control">
+                    <option value="">Choose...</option>
+                    <option value="">option1</option>
+                    <option value="">option2</option>
+                    <option value="">option3</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="col">
+                  <button type="submit" class="btn btn-primary">Connect</button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="footer-section" id="footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col mr-1 text-md-right"><a class="footer-link" href="">Privacy Policy</a></div>
+          |
+          <div class="col ml-1 text-md-left"><a class="footer-link" href="">Terms and Conditions</a></div>
+        </div>
+      </div>
+      <div class="copyright"><span>©2021 Partner Company</span></div>
+    </section>
+  </body>
+</html>
