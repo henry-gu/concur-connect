@@ -7,23 +7,23 @@
 
     <title>Landing Page Demo</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Montserrat|Ubuntu" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Montserrat|Ubuntu" rel="stylesheet" />
 
-    <!-- Bootstrap Styles -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
-      integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous" />
-  
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  
-    <!-- Bootstrap JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
-  
-  
-    
+  <!-- Bootstrap Styles -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/css/bootstrap.min.css"
+    integrity="sha384-zCbKRCUGaJDkqS1kPbPd7TveP5iyJE0EjAuZQTgFLD2ylzuqKfdKlfG/eSrtxUkn" crossorigin="anonymous" />
+
+  <!-- Bootstrap JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!-- Bootstrap JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.min.js"></script>
+
+
+
     <style>
       body {
         font-family: "Montserrat";
@@ -34,8 +34,8 @@
         color: #8f8f8f;
       }
 
-      .bg-success{
-        background-color: #21ac0f;
+      .bg-failure{
+        background-color: #f820209a;
       }
       /* Title Section */
 
@@ -81,7 +81,7 @@
       }
 
       .card-header {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
       }
 
       .card-subtitle {
@@ -90,6 +90,7 @@
       }
       .card-text {
         text-align: left;
+        font-size: 0.9rem;
         padding: 10px 4% 0;
       }
 
@@ -115,7 +116,7 @@
     </style>
   </head>
   <body>
-    <section class="title-section bg-success" id="title">
+    <section class="title-section bg-failure" id="title">
       <div class="container-fluid">
         <nav class="navbar navbar-expand-lg navbar-dark">
           <img class="company-logo" src="https://via.placeholder.com/100x100.png?text=LOGO" alt="logo" width="80"
@@ -142,7 +143,7 @@
     <section class="middle-section" id="main">
       <div class="container">
         <div class="card">
-          <div class="card-header text-white bg-success">Connect Success</div>
+          <div class="card-header text-white bg-failure">Connect Failed</div>
           <div class="card-text">
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. At auctor urna nunc id cursus metus. Est
@@ -154,7 +155,7 @@
               <div class="col">
                 <input
                   type="button"
-                  class="btn btn-primary bg-success"
+                  class="btn btn-primary bg-failure"
                   style="font-weight: bold; display: inline"
                   value="Close"
                   onclick="javascript:window.close('','_parent','');"
