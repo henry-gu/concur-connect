@@ -1,24 +1,37 @@
+require("dotenv").config();
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const request = require("request");
-
-const port = 3030;
 const app = express();
 
-const clientId = "646a2339-1632-4692-8be6-84534f5b41fc";
-const clientSecret = "903a53f0-d11d-4a1f-b348-2d7b3f1afddc";
+const clientId = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const port = parseInt(process.env.PORT) || 3030;
+
 
 let authId, authRequestToken;
 
 app.set("view engine", "ejs");
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+//////////////////////////////////////////////
+function getUTCDateTime () {
+  const utcTime = new Date().toISOString().slice(0, -1); // remove last character
+  return utcTime + " UTC";
+};
+
+
+
+//////////////////////////////////////////////
+// REDIRECT TO LANDING PAGE
 app.get("/", (req, res) => {
   res.redirect("/connect");
 });
 
+//////////////////////////////////////////////
+// GET LANDING PAGE 
 app.get("/connect", (req, res) => {
   authId = req.query.id;
   authRequestToken = req.query.requestToken;
@@ -27,6 +40,9 @@ app.get("/connect", (req, res) => {
   res.render("connect");
 });
 
+
+//////////////////////////////////////////////
+// AUTHORIZE THE TOKEN REQUEST 
 app.post("/auth", (req, res) => {
   console.log(`--> request to authorize the app connection...`);
   console.log(`--> id=${authId}; requestToken=${authRequestToken}`);
