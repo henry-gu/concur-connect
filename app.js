@@ -22,8 +22,6 @@ function getUTCDateTime () {
   return utcTime + " UTC";
 };
 
-
-
 //////////////////////////////////////////////
 // REDIRECT TO LANDING PAGE
 app.get("/", (req, res) => {
@@ -35,8 +33,8 @@ app.get("/", (req, res) => {
 app.get("/connect", (req, res) => {
   authId = req.query.id;
   authRequestToken = req.query.requestToken;
-  console.log(`--> request for the landing page...`);
-  console.log(`--> id=${authId}; requestToken=${authRequestToken}`);
+  console.log(`${getUTCDateTime()} >>> request for the landing page...`);
+  console.log(`${getUTCDateTime()} >>> id=${authId}; requestToken=${authRequestToken}`);
   res.render("connect");
 });
 
@@ -44,10 +42,11 @@ app.get("/connect", (req, res) => {
 //////////////////////////////////////////////
 // AUTHORIZE THE TOKEN REQUEST 
 app.post("/auth", (req, res) => {
-  console.log(`--> request to authorize the app connection...`);
-  console.log(`--> id=${authId}; requestToken=${authRequestToken}`);
+  console.log(`${getUTCDateTime()} >>>  request to authorize the app connection...`);
+  console.log(`${getUTCDateTime()} >>>  id=${authId}; requestToken=${authRequestToken}`);
 
   const request = require("request");
+  
   const options = {
     method: "POST",
     url: "https://us.api.concursolutions.com/oauth2/v0/token",
@@ -63,25 +62,31 @@ app.post("/auth", (req, res) => {
       password: authRequestToken,
     },
   };
+
   request(options, function (error, response) {
     if (error) throw new Error(error);
-    console.log(" |---> Concur-Correlationid:" + response.headers["concur-correlationid"]);
-    console.log(" |---> Response Body:");
+    console.log(`${getUTCDateTime()} >>> Concur-Correlationid: ${response.headers["concur-correlationid"]}`);
+    console.log(`${getUTCDateTime()} >>> Response Body:`);
     console.log(response.body);
   });
 
   res.redirect("/success");
 });
 
+//////////////////////////////////////////////
+// AUTHORIZE SUCCESS PAGE 
 app.get("/success", (req, res) => {
-  console.log(`--> connect success...`);
+  console.log(`${getUTCDateTime()} >>> SUCCESS: Connection Authorized`);
   res.render("success");
 });
 
+//////////////////////////////////////////////
+// AUTHORIZE FAILURE PAGE 
 app.get("/failure", (req, res) => {
   res.render("failure");
 });
 
+
 app.listen(port, () => {
-  console.log("===> Server is listening at port " + port);
+  console.log(`${getUTCDateTime()} >>> Server is listening at port ${port}`);
 });
