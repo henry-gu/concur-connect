@@ -77,7 +77,7 @@ app.post("/auth", async (req, res) => {
   const request = require("request");
   const options = {
     method: "POST",
-    url: "https://us.api.concursolutions.com/oauth2/v0/token",
+    url: "https://us2.api.concursolutions.com/oauth2/v0/token",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
     },
