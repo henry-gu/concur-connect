@@ -12,6 +12,9 @@ const port = parseInt(process.env.PORT) || 3030;
 const logMessages = [];
 
 let authId, authRequestToken, authUserId, authUrl;
+let refreshToken = null; // Initialize refreshToken as null
+let accessToken = null; // Initialize accessToken as null
+let companyUUID = null;
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -62,9 +65,10 @@ function unixTimestampToUTC(unixTimestamp) {
   const seconds = utcDate.getUTCSeconds();
 
   const utcTimeString = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')} ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  
+
   return utcTimeString;
 }
+
 
 //////////////////////////////////////////////
 // REDIRECT TO LANDING PAGE
@@ -112,18 +116,14 @@ app.post("/auth", async (req, res) => {
 
   // Check if authCode ends with '0000'
   if (accountId && accountAuthCode.endsWith('0000')) {
-    appendLog(`========================================================================`);
-    appendLog(`${getUTCDateTime()} >>> COMPANY AUTHORIZATION FAILED`);
-    appendLog(`------------------------------------------------------------------------`);
-    appendLog(`Auth code should not end with '0000'`);
+    appendLog(`COMPANY AUTHORIZATION FAILED`);
+    appendLog(`ERROR: Auth code should not end with '0000'`);
     appendLog(``);
 
     res.redirect("/failure");
     return; // Exit the function
   } else {
-    appendLog(`========================================================================`);
-    appendLog(`${getUTCDateTime()} >>> COMPANY AUTHORIZATION SUCCESS`);
-    appendLog(`------------------------------------------------------------------------`);
+    appendLog(`>>> COMPANY AUTHORIZATION SUCCESS`);
     appendLog(``);
   }
 
@@ -133,13 +133,13 @@ app.post("/auth", async (req, res) => {
   appendLog(`Method="POST"`);
   appendLog(`URL="https://us.api.concursolutions.com/oauth2/v0/token"`);
   appendLog(`Content-Type=""application/x-www-form-urlencoded"`);
-  appendLog(`-- client_id=${clientId.slice(0,16)}${"x".repeat(20)}`);
+  appendLog(`-- client_id=${clientId.slice(0, 16)}${"x".repeat(20)}`);
   appendLog(`-- client_secret=${"x".repeat(36)}`);
   appendLog(`-- grant_type="password"`);
   appendLog(`-- redtype="authtoken"`);
   appendLog(`-- username="${authId}"`);
   appendLog(`-- password="${authRequestToken}"`);
-  appendLog(``);
+  appendLog(`------------------------------------------------------------------------`);
 
   const request = require("request");
   const options = {
@@ -161,17 +161,12 @@ app.post("/auth", async (req, res) => {
   try {
     request(options, function (error, response) {
       if (error) {
-        appendLog(`========================================================================`);
         appendLog(`${getUTCDateTime()} >>> ERROR: CALL OAUTH2 API`);
-        appendLog(`------------------------------------------------------------------------`);
         console.error(`Error: ${error.message}`);
         res.redirect("/failure");
         return;
       }
 
-      appendLog(`========================================================================`);
-      appendLog(`${getUTCDateTime()} >>> CALL OAUTH2 API SUCCESS`);
-      appendLog(`------------------------------------------------------------------------`);
       appendLog(`Response Status: ${response.statusCode}`);
       appendLog(`Response Header:`);
       appendLog(`"concur-correlationid": ${response.headers["concur-correlationid"]}`);
@@ -181,23 +176,25 @@ app.post("/auth", async (req, res) => {
       appendLog(`"scope": ${responseJson.scope}`);
       appendLog(`"token_type": ${responseJson.token_type}`);
       appendLog(`"refresh_token": ${responseJson.refresh_token}`);
+      refreshToken = responseJson.refresh_token;
       const expireTimeUTC = unixTimestampToUTC(responseJson.refresh_expires_in);
       appendLog(`"refresh_expires_in": ${responseJson.refresh_expires_in} (UTC: ${expireTimeUTC})`);
       appendLog(`"geolocation": ${responseJson.geolocation}`);
-      const accessToken = responseJson.access_token;
+      accessToken = responseJson.access_token;
       appendLog(`"access_token":${accessToken.slice(0, 30)}${".".repeat(20)}${accessToken.slice(-20)}`);
       const idToken = responseJson.id_token;
-      appendLog(`"id_token": ${idToken.slice(0,30)}${".".repeat(20)}${idToken.slice(-20)}`);
-      appendLog(`************************************************************************`);
+      appendLog(`"id_token": ${idToken.slice(0, 30)}${".".repeat(20)}${idToken.slice(-20)}`);
+      appendLog(`------------------------------------------------------------------------`);
       const accessJwtTokenPayload = JSON.stringify(parseJwt(responseJson.access_token), null, 4);
       appendLog(`<JWT decoded access-token >:`);
       appendLog(`${accessJwtTokenPayload}`);
-      appendLog(`************************************************************************`);
-      const idJwtTokenPayload = JSON.stringify(parseJwt(responseJson.id_token), null, 4);;
+      appendLog(`------------------------------------------------------------------------`);
+      const idTokenJWT = parseJwt(responseJson.id_token);
+      const idTokenJWTPayload = JSON.stringify(idTokenJWT, null, 4);;
+      companyUUID = idTokenJWT.payload.sub;
       appendLog(`<JWT decoded id_token >:`);
-      appendLog(`${idJwtTokenPayload}`);
-      appendLog(``);
-
+      appendLog(`${idTokenJWTPayload}`);
+      appendLog(`company UUID = ${companyUUID}`);
       res.redirect("/success");
     });
   } catch (error) {
@@ -233,10 +230,150 @@ app.get("/failure", (req, res) => {
 });
 
 //////////////////////////////////////////////
-// GET /showlogs endpoint to display log messages
-app.get("/showlogs", (req, res) => {
+// POST /refreshtoken endpoint to refresh the token
+app.post("/refreshtoken", async (req, res) => {
+
+  appendLog(`========================================================================`);
+  appendLog(`${getUTCDateTime()}  >>> CALL OAUTH2 API TO REFRESH TOKEN`);
+  appendLog(`------------------------------------------------------------------------`);
+  appendLog(`Method="POST"`);
+  appendLog(`URL="https://us.api.concursolutions.com/oauth2/v0/token"`);
+  appendLog(`Content-Type=""application/x-www-form-urlencoded"`);
+  appendLog(`-- client_id=${clientId.slice(0, 16)}${"x".repeat(20)}`);
+  appendLog(`-- client_secret=${"x".repeat(36)}`);
+  appendLog(`-- grant_type="refresh_token"`);
+  appendLog(`-- refresh_token="${refreshToken.slice(0, 30)}xxxxxxx"`);
+  appendLog(``);
+
+
+  const request = require("request");
+  const options = {
+    method: "POST",
+    url: "https://us.api.concursolutions.com/oauth2/v0/token",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    form: {
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "refresh_token",
+      refresh_token: refreshToken,
+    },
+  };
+
+  try {
+    request(options, function (error, response) {
+      if (error) {
+        appendLog(`ERROR: CALL OAUTH2 REFRESH TOKEN API`);
+        console.error(`Error: ${error.message}`);
+        res.redirect("/failure");
+        return;
+      }
+
+      appendLog(`Response Status: ${response.statusCode}`);
+      appendLog(`Response Header:`);
+      appendLog(`"concur-correlationid": ${response.headers["concur-correlationid"]}`);
+      appendLog(`Response Body:`);
+      const responseJson = JSON.parse(response.body);
+      appendLog(`"expires_in": ${responseJson.expires_in}`);
+      appendLog(`"scope": ${responseJson.scope}`);
+      appendLog(`"token_type": ${responseJson.token_type}`);
+      appendLog(`"refresh_token": ${responseJson.refresh_token}`);
+      refreshToken = responseJson.refresh_token;
+      const expireTimeUTC = unixTimestampToUTC(responseJson.refresh_expires_in);
+      appendLog(`"refresh_expires_in": ${responseJson.refresh_expires_in} (UTC: ${expireTimeUTC})`);
+      appendLog(`"geolocation": ${responseJson.geolocation}`);
+      accessToken = responseJson.access_token;
+      appendLog(`"access_token":${accessToken.slice(0, 30)}${".".repeat(20)}${accessToken.slice(-20)}`);
+      const idToken = responseJson.id_token;
+      appendLog(`"id_token": ${idToken.slice(0, 30)}${".".repeat(20)}${idToken.slice(-20)}`);
+      appendLog(`------------------------------------------------------------------------`);
+      const accessJwtTokenPayload = JSON.stringify(parseJwt(responseJson.access_token), null, 4);
+      appendLog(`<JWT decoded access-token >:`);
+      appendLog(`${accessJwtTokenPayload}`);
+      appendLog(`------------------------------------------------------------------------`);
+      const idTokenJWT = parseJwt(responseJson.id_token);
+      const idTokenJWTPayload = JSON.stringify(idTokenJWT, null, 4);;
+      companyUUID = idTokenJWT.payload.sub;
+      appendLog(`<JWT decoded id_token >:`);
+      appendLog(`${idTokenJWTPayload}`);
+      appendLog(`company UUID = ${companyUUID}`);
+      appendLog(``);
+      res.sendStatus(200);
+    });
+  } catch (error) {
+    if (error.response) {
+      // Log the response headers when an error is caught
+      appendLog(`${getUTCDateTime()} >>> concur-correlationid: ${error.response.headers["concur-correlationid"]}`);
+    }
+    console.error(`${getUTCDateTime()} >>> Error: ${error.message}`);
+    res.sendStatus(500);
+  }
+});
+  
+//////////////////////////////////////////////
+// POST /getcompanyinfo endpoint to get company info
+app.post("/getcompanyinfo", async (req, res) => {
+  appendLog(`========================================================================`);
+  appendLog(`${getUTCDateTime()}  >>> GET COMPANY INFO`);
+  appendLog(`------------------------------------------------------------------------`);
+  appendLog(`Method="GET"`);
+  appendLog(`URL="https://us.api.concursolutions.com/profile/v1/principals/${companyUUID}"`);
+  appendLog(`Headers:`);
+  appendLog(` -- Authorization: Bearer ${accessToken.slice(0, 30)}${".".repeat(20)}${accessToken.slice(-20)}`);
+  const request = require("request");
+  const options = {
+    method: "GET",
+    url: `https://us.api.concursolutions.com/profile/v1/principals/${companyUUID}`,
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  };
+
+  try {
+    request(options, function (error, response) {
+      if (error) {
+        appendLog(`>>> ERROR: CALL PROFILE V1 TO GET COMPANT PROFILE`);
+        console.error(`Error: ${error.message}`);
+        res.redirect("/failure");
+        return;
+      }
+
+      appendLog(`Response Status: ${response.statusCode}`);
+      appendLog(`Response Header:`);
+      appendLog(`"concur-correlationid": ${response.headers["concur-correlationid"]}`);
+      appendLog(`Response Body:`);
+      const responseJson = JSON.parse(response.body);
+      const beautifiedJson = JSON.stringify(responseJson, null, 2);
+      appendLog(`${beautifiedJson}`);
+      appendLog(`------------------------------------------------------------------------`);
+      const companyExpense = responseJson["com:concur:Expense:0.1"];
+      const marketingName = companyExpense.marketingName || null;
+      appendLog(`"Concur Edition": ${marketingName=== 'CTE'? 'Professional':'Standard'}`);
+      appendLog(``);
+
+      res.sendStatus(200);
+    });
+  } catch (error) {
+    if (error.response) {
+      // Log the response headers when an error is caught
+      appendLog(`${getUTCDateTime()} >>> concur-correlationid: ${error.response.headers["concur-correlationid"]}`);
+    }
+    console.error(`${getUTCDateTime()} >>> Error: ${error.message}`);
+    res.sendStatus(500);
+  }
+});
+
+
+//////////////////////////////////////////////
+// GET /logview endpoint to display log messages
+app.get("/logview", (req, res) => {
   // Render the logs.ejs template with logMessages and send it as a response
-  res.render("showlogs");
+  res.render("logview", {
+    logMessages,
+    accessToken,
+    refreshToken,
+  });
 });
 
 //////////////////////////////////////////////
@@ -246,6 +383,12 @@ app.get("/fetchlogs", (req, res) => {
   res.send(logMessages);
 });
 
+//////////////////////////////////////////////
+// GET /fetchlogs endpoint to retrieve log messages
+app.post("/clearlogs", (req, res) => {
+  logMessages.splice(0,logMessages.length)
+  res.sendStatus(200);
+});
 
 //////////////////////////////////////////////
 app.listen(port, () => {
