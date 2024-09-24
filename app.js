@@ -136,7 +136,7 @@ app.post("/auth", async (req, res) => {
   appendLog(`-- client_id=${clientId.slice(0, 16)}${"x".repeat(20)}`);
   appendLog(`-- client_secret=${"x".repeat(36)}`);
   appendLog(`-- grant_type="password"`);
-  appendLog(`-- redtype="authtoken"`);
+  appendLog(`-- credtype="authtoken"`);
   appendLog(`-- username="${authId}"`);
   appendLog(`-- password="${authRequestToken}"`);
   appendLog(`------------------------------------------------------------------------`);
